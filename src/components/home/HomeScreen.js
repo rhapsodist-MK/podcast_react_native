@@ -1,11 +1,37 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Text } from 'react-native-design-utility'
-import { ScrollView, SafeAreaView } from 'react-native'
+import { ScrollView, SafeAreaView, Image } from 'react-native'
 import FeatherIcon from 'react-native-vector-icons/Feather'
-import {theme} from '@constants/theme'
 
-const PodcastCard = () => {
-  return <Box w={100} h={100} radius={4} bg="red" mr="sm" />
+import {theme} from '@constants/theme'
+import {searchPodcast} from '@services/ItunesApiServices'
+
+const Divider = () => <Box h={1} w="100%" bg="greyLight"/>
+
+const PodcastCard = ({podcast}) => {
+  return (
+    <Box mr="sm" h={105}>
+      <Box w={100} h={100} radius="xs" mr="sm" shadow={1}>
+        <Image style={{flex: 1, borderRadius: theme.radius.xs}} source={{uri: podcast.artworkUrl60 }}/>
+      </Box>
+    </Box>
+  )
+}
+
+const PodcastTile = ({podcast}) => {
+  return (
+    <Box mb="sm">
+      <Box dir="row" mb="sm">
+        <Box w={100} h={100} radius="xs" mr="xs">
+          <Image style={{flex: 1}} source={{uri: podcast.artworkUrl60 }}/>
+        </Box>
+        <Box f={1}>
+          <Text size="sm" numberOfLines={1}>{podcast.artistName}</Text>
+        </Box>
+      </Box>
+      <Divider/>
+    </Box>
+  )
 }
 
 const Category = ({ color, icon }) => {
@@ -23,26 +49,36 @@ const Category = ({ color, icon }) => {
 }
 
 export default () => {
+  const [podcasts, setPodcasts] = useState([])
+
+  useEffect(() => {
+    searchPodcast('syntax')
+      .then((results) => {
+        setPodcasts(results)
+      })
+  }, [])
+
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>
-      <Box mt={100}>
+      {/* <Box mt={100}>
         <Box ml="sm">
           <Text size="xl">Trending</Text>
         </Box>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <PodcastCard />
-          <PodcastCard />
-          <PodcastCard />
-          <PodcastCard />
-          <PodcastCard />
+          {podcasts.map((podcast) => <PodcastCard podcast={podcast} key={podcast.trackId} />)}
         </ScrollView>
-      </Box>
+      </Box> */}
       <Box mt={10}>
         <Box ml="sm">
           <Text size="xl">Categories</Text>
         </Box>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <Category icon="heart" color={theme.color.red}/>
+        </ScrollView>
+      </Box>
+      <Box mt={100}>
+        <ScrollView>
+          {podcasts.map((podcast) => <PodcastTile podcast={podcast} key={podcast.trackId} />)}
         </ScrollView>
       </Box>
     </SafeAreaView>
